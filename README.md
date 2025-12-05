@@ -1,0 +1,1 @@
+x -> a solution for connection exists, but doesnt fill the board
