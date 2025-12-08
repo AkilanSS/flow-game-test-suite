@@ -3,18 +3,15 @@ import csv
 import sys
 import os
 
-# ================= CONFIGURATION =================
-GRID_SIZE = 5          # Change this to 5, 9, etc.
-CELL_SIZE = 60         # Pixel size of each cell
-MARGIN = 200           # Right-side panel width
-UI_MIN_HEIGHT = 500    # Minimum height to ensure UI fits
+GRID_SIZE = 7        
+CELL_SIZE = 60         
+MARGIN = 200           
+UI_MIN_HEIGHT = 500    
 
-# Calculate Window Dimensions
 GRID_PIXEL_SIZE = GRID_SIZE * CELL_SIZE
 WINDOW_HEIGHT = max(GRID_PIXEL_SIZE, UI_MIN_HEIGHT)
 WINDOW_WIDTH = GRID_PIXEL_SIZE + MARGIN
 
-# Colors (R, G, B)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GRAY = (50, 50, 50)
@@ -22,7 +19,6 @@ GRID_LINE_COLOR = (100, 100, 100)
 INPUT_ACTIVE_COLOR = (0, 200, 255)
 INPUT_PASSIVE_COLOR = (100, 100, 100)
 
-# Palette for IDs 1-12
 COLORS = [
     (0, 0, 0),       # 0: Empty
     (255, 0, 0),     # 1: Red
@@ -46,28 +42,26 @@ def get_color(id_num):
     random.seed(id_num)
     return (random.randint(50,255), random.randint(50,255), random.randint(50,255))
 
-# ================= INITIALIZATION =================
+
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Flow Free Level Generator")
 font = pygame.font.SysFont('Arial', 24)
 small_font = pygame.font.SysFont('Arial', 18)
 
-# Initialize Grid
+
 grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
-# State Variables
 current_id = 1
 status_message = "Ready"
 
-# Text Input Variables
 input_text = "level_01"
 input_active = False
-# We will calculate rect dynamically in draw_ui
+
 input_rect = pygame.Rect(0, 0, 160, 32) 
 
 def save_to_csv():
-    filename = "./N = 5/"
+    filename = "./N = 7/"
     filename += input_text
     if not filename.endswith(".csv"):
         filename += ".csv"
@@ -95,22 +89,18 @@ def draw_grid():
                 screen.blit(text_surf, text_rect)
 
 def draw_ui():
-    # Sidebar Background (Full Height)
     ui_rect = pygame.Rect(GRID_PIXEL_SIZE, 0, MARGIN, WINDOW_HEIGHT)
     pygame.draw.rect(screen, (30, 30, 30), ui_rect)
-    
-    # Starting Y position for UI elements
+
     y_offset = 20
     x_start = GRID_PIXEL_SIZE + 20
 
-    # 1. Selected ID and Color Preview
     screen.blit(small_font.render(f"Selected ID: {current_id}", True, WHITE), (x_start, y_offset))
     y_offset += 30
     preview_rect = pygame.Rect(x_start, y_offset, 40, 40)
     pygame.draw.rect(screen, get_color(current_id), preview_rect)
-    y_offset += 50 # Add spacing after box
+    y_offset += 50
 
-    # 2. Controls Text
     controls = [
         "Controls:",
         "Left Click: Paint",
@@ -125,10 +115,9 @@ def draw_ui():
     for line in controls:
         surf = small_font.render(line, True, WHITE)
         screen.blit(surf, (x_start, y_offset))
-        y_offset += 25 # Smaller line spacing
+        y_offset += 25
 
-    # 3. Input Box (Dynamic Position)
-    y_offset += 5 # Small padding
+    y_offset += 5
     input_rect.topleft = (x_start, y_offset)
     
     box_color = INPUT_ACTIVE_COLOR if input_active else INPUT_PASSIVE_COLOR
@@ -137,12 +126,10 @@ def draw_ui():
     text_surface = small_font.render(input_text, True, WHITE)
     screen.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
     
-    # 4. Status Message
     y_offset += 45
     status_surf = small_font.render(f"Status: {status_message}", True, (200, 200, 200))
     screen.blit(status_surf, (x_start, y_offset))
 
-# ================= MAIN LOOP =================
 clock = pygame.time.Clock()
 running = True
 
@@ -153,14 +140,12 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        # --- Mouse Click Handling ---
         if event.type == pygame.MOUSEBUTTONDOWN:
             if input_rect.collidepoint(event.pos):
                 input_active = not input_active
             else:
                 input_active = False
-                
-                # Check grid click only if not in input box
+
                 if event.pos[0] < GRID_PIXEL_SIZE: 
                     mx, my = event.pos
                     col = mx // CELL_SIZE
@@ -171,12 +156,10 @@ while running:
                         elif event.button == 3:
                             grid[row][col] = 0
         
-        # --- Mouse Scroll Handling ---
         if event.type == pygame.MOUSEWHEEL:
             current_id += event.y
             if current_id < 1: current_id = 1
 
-        # --- Keyboard Handling ---
         if event.type == pygame.KEYDOWN:
             if input_active:
                 if event.key == pygame.K_RETURN:
@@ -198,10 +181,8 @@ while running:
                 elif event.key == pygame.K_s:
                     status_message = save_to_csv()
 
-    # --- Mouse Painting ---
     if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mx, my = pygame.mouse.get_pos()
-        # Ensure we are inside the grid and NOT hovering over the input box
         if mx < GRID_PIXEL_SIZE and not input_rect.collidepoint((mx, my)):
             col = mx // CELL_SIZE
             row = my // CELL_SIZE
