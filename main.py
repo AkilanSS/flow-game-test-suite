@@ -3,7 +3,7 @@ import csv
 import sys
 import os
 
-GRID_SIZE = 7        
+GRID_SIZE =  8
 CELL_SIZE = 60         
 MARGIN = 200           
 UI_MIN_HEIGHT = 500    
@@ -61,7 +61,7 @@ input_active = False
 input_rect = pygame.Rect(0, 0, 160, 32) 
 
 def save_to_csv():
-    filename = "./N = 7/"
+    filename = "./greedy-wrap/"
     filename += input_text
     if not filename.endswith(".csv"):
         filename += ".csv"
